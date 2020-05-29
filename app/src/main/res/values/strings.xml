@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">TikFetch</string>
+    <string name="Copy_link_tiktok">Copy a link from TikTok and Press the TikTok Button bellow.</string>
+    <string name="Copy_link_tiktok_2"> After that open your favourite Gallery and peek inside TikFetch folder.</string>
+    <string name="no_internet_access">No Internet Access</string>
+    <string name="no_internet_description">It looks like you don\'t have internet connection, would you like to connect?</string>
+    <string name="exit">Exit</string>
+    <string name="action_settings">Open Settings</string>
+
+    //Link
+    <string name="link_founded">TikTok Link</string>
+    <string name="link_for_download">TikTok link saved, click here to open the app.</string>
+    <string name="guide_description">Copy Link from TikTok and Press this Button.</string>
+    <string name="guide">Guide</string>
+    <string name="download_started">Download in Progress</string>
+    <string name="downloading">Downloading</string>
+    <string name="please_wait">Please wait</string>
+    <string name="no_copy">You haven\'t copied any link yet!</string>
+    <string name="no_copy_title">No Link</string>
+    <string name="correct_url_title">It looks like this is not a valid TikTok link.</string>
+    <string name="correct_url">Please copy a valid TikTok Link.</string>
+    <string name="clipboard_error_title">Clipboard Data</string>
+    <string name="clipboard_error">Clipboard Error,please restart the app or copy link again.</string>
+    <string name="HelloThere">Hello There</string>
+
+
+    //Dialog
+    <string name="choose_theme">Choose Theme:</string>
+    <string name="choose_theme_details">TikFetch supports two themes that you can choose from.</string>
+    <string name="choose_theme_details_2">We follow the latest trends and we recommend Dark Theme.</string>
+    <string name="dark_mode_btn_name">Dark Theme</string>
+    <string name="light_mode_btn_name">Light Theme</string>
+    <string name="choose_theme_details_3">For this choice to take effect please restart the app</string>
+
+    <string name="settings">Settings</string>
+
+    //Change Ad Unit with your own
+
+    <string name="ad_unit">ca-app-pub-3940256099942544/1033173712</string>
+
+</resources>
