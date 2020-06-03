@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -10,13 +9,18 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.ozurak.tiktokfetch"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        applicationId 'com.ozurak.tiktokfetch'
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdkVersion 16
+        targetSdkVersion 29
+
+        versionCode 1
+        versionName '1.0'
+
+        multiDexEnabled true
+
+        vectorDrawables.useSupportLibrary = true
+        vectorDrawables.generatedDensities = []
     }
 
     buildTypes {
@@ -26,30 +30,43 @@ android {
         }
     }
 
+    flavorDimensions 'default'
+    productFlavors {
+        noAds {}
+
+        ads {
+            versionNameSuffix '-ads'
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     //Barebones libraries
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.google.android.material:material:1.1.0'
+
     //Bellow are libraries that I have added to the project
     //Cardview for MainActivity
     implementation 'androidx.cardview:cardview:1.0.0'
+
     //Custom Toast Notifications Library
     implementation 'com.github.GrenderG:Toasty:1.4.2'
+
     //Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
+
     //Glide image library
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
     //Alert View
     implementation 'com.tapadoo.android:alerter:2.0.6'
+
     //Permission maganer
     implementation 'com.karumi:dexter:6.1.2'
+
     //Admob
-    implementation 'com.google.android.gms:play-services-ads:19.1.0'
+    adsImplementation 'com.google.android.gms:play-services-ads:19.1.0'
 }
