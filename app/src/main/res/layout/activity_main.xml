@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/white"
-    android:layout_height="match_parent">
+    android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
-        android:backgroundTint="@color/gray_color"
         android:layout_width="match_parent"
         android:layout_height="230dp"
         android:layout_gravity="center"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
-        card_view:cardCornerRadius="4dp">
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="5dp"
+        app:cardBackgroundColor="@color/colorGray"
+        app:cardCornerRadius="4dp">
 
-        <TextView
-            android:textColor="@color/black"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnModeChange"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_centerInParent="true"
+            android:layout_gravity="end"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            app:srcCompat="@drawable/ic_ui_mode_change"
+            app:tint="@color/colorDarkGray" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -26,64 +37,54 @@
             android:gravity="center"
             android:text="@string/HelloThere"
             android:textAlignment="center"
+            android:textColor="@color/black"
             android:textSize="28sp" />
 
-        <TextView
-            android:textColor="@color/black"
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="15dp"
-            android:padding="5dp"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_circle"
-            android:text="@string/Copy_link_tiktok"
-            android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:textAlignment="center" />
-        <TextView
-            android:textColor="@color/black"
+            android:drawableStart="@drawable/ic_circle"
+            android:drawableLeft="@drawable/ic_circle"
+            android:drawablePadding="8dp"
+            android:padding="5dp"
+            android:text="@string/Copy_link_tiktok"
+            android:textAlignment="center"
+            android:textColor="@color/black" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="70dp"
-            android:padding="5dp"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_circle"
-            android:text="@string/Copy_link_tiktok_2"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="70dp"
             android:layout_marginEnd="10dp"
-            android:textAlignment="center" />
-
-
+            android:drawableStart="@drawable/ic_circle"
+            android:drawableLeft="@drawable/ic_circle"
+            android:drawablePadding="8dp"
+            android:padding="5dp"
+            android:text="@string/Copy_link_tiktok_2"
+            android:textAlignment="center"
+            android:textColor="@color/black" />
     </androidx.cardview.widget.CardView>
-
 
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/white"
-        android:layout_weight="0.23">
+        android:layout_weight="0.23"
+        android:background="@color/white">
 
-
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/TikTokBtn"
             android:layout_width="150dp"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_open_tiktok_light"
-            android:layout_centerInParent="true" />
-        <com.google.android.gms.ads.AdView
-            xmlns:ads="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
-            ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
-        </com.google.android.gms.ads.AdView>
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_open_tiktok_light" />
 
+        <include layout="@layout/include_ads" />
     </RelativeLayout>
-
 </LinearLayout>

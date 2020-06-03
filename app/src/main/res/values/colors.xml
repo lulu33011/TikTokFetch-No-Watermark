@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorAccent">#1a1a1a</color>
     <color name="colorPrimary">#1a1a1a</color>
     <color name="colorPrimaryDark">#111111</color>
-    <color name="colorAccent">#1a1a1a</color>
 
-    //Button Colors
-    <color name="Button_Primary">#1a1a1a</color>
+    <color name="ic_launcher_background">#1A1A1A</color>
+
+    <!-- Button colors -->
+    <color name="colorButtonPrimary">#1a1a1a</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
-    //UI colors
+
+    <!-- UI colors -->
     <color name="dividerColor">#b5b5b5</color>
     <color name="Gainsboro">#dcdcdc</color>
-    //Guide Color
-    <color name="GuideDark">#E6242424</color>
 
-    <color name="ERROR">#D50000</color>
-    <color name="Warning">#FFA900</color>
-    <color name="dark_gray">#212121</color>
-    <color name="darker_gray">#0a0a0a</color>
-    <color name="gray_color">#f9f9f9</color>
+    <!-- Guide colors -->
+    <color name="GuideDark">#e6242424</color>
+
+    <color name="colorError">#D50000</color>
+    <color name="colorWarning">#FFA900</color>
+    <color name="colorGray">#f9f9f9</color>
+    <color name="colorDarkGray">#212121</color>
+    <color name="colorDarkerGray">#0a0a0a</color>
 </resources>

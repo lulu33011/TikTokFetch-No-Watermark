@@ -1,16 +1,12 @@
 package com.ozurak.tiktokfetch.Activity;
 
-
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,31 +16,28 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.karumi.dexter.listener.single.BasePermissionListener;
+import com.ozurak.tiktokfetch.AdsUtils;
 import com.ozurak.tiktokfetch.R;
 import com.ozurak.tiktokfetch.Services.ConnectivityService;
 import com.tapadoo.alerter.Alerter;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
@@ -52,243 +45,249 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import es.dmoral.toasty.Toasty;
 
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
+
 /**
  * Stefan Najdovski
  * 5/21/2020
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static String OPENED_FROM_OUTSIDE = null;
-    String playURL = "";
-    ArrayList < String > trueLink;
-    private AdView mAdView;
-    @SuppressLint("SourceLockedOrientationActivity")
+    ArrayList<String> trueLink;
+    ///////////////
+    private AlertDialog dialog;
+    private LayoutInflater layoutInflater;
+    private DownloadManager downloadManager;
+    private ClipboardManager clipboardManager;
+    private SharedPreferences sharedPreferences;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        layoutInflater = getLayoutInflater();
+        downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        //Ignore Error
-        // Make screen Portrait to disable Landscape orientation
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        //bind xml with main activity
-        SharedPreferences getPrefs = PreferenceManager
-                .getDefaultSharedPreferences(getBaseContext());
+        final boolean isDark = sharedPreferences.getBoolean("User_theme_dark", true);
 
-        boolean isDark = getPrefs.getBoolean("User_theme_dark", true);
-
-        if (isDark) {
-            setContentView(R.layout.activity_main_dark);
+        if (!isDark) {
+            setContentView(R.layout.activity_main);
+        } else {
+            final Window window = getWindow();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                getWindow().setStatusBarColor(Color.parseColor("#212121"));
+                window.setStatusBarColor(0xFF_212121);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    final View decorView = window.getDecorView();
+                    decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                 }
             }
-        } else {
-            setContentView(R.layout.activity_main);
+            setContentView(R.layout.activity_main_dark);
         }
 
-        //Check if the app is launched for the first time
+        // Check if the app is launched for the first time
         isFirstTime();
+
         //Ask for Permissions
         askPermission();
-        ImageView mTikTokBtn = findViewById(R.id.TikTokBtn);
-        mTikTokBtn.setOnClickListener(this);
 
+        final ImageView btnTikTok = findViewById(R.id.TikTokBtn);
+        final ImageView btnModeChange = findViewById(R.id.btnModeChange);
 
+        btnTikTok.setOnClickListener(this);
+        btnModeChange.setOnClickListener(this);
 
         //Admob
-        MobileAds.initialize(this, initializationStatus -> {
-        });
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
+        AdsUtils.loadAds(this);
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
-        if (getIntent() != null && getIntent().getDataString() != null) {
-            OPENED_FROM_OUTSIDE = getIntent().getDataString();
+        final Intent intent1 = getIntent();
+        final String dataString;
+        if (intent1 != null && (dataString = intent1.getDataString()) != null) {
+            OPENED_FROM_OUTSIDE = dataString;
         }
     }
+
     /**
-     * So basilcly here is the onClicklistener when you click the TikTok button
+     * So basically here is the onClicklistener when you click the TikTok button
      */
-
     @Override
-    public void onClick(View view) {
-        //Checks if wifi or data is present
-        //  private InterstitialAd mInterstitialAd;
-        boolean isThereConnection = ConnectivityService.isConnected(this);
-        if (!isThereConnection) {
+    public void onClick(@NonNull final View view) {
+        final int id = view.getId();
+        if (id == R.id.btnModeChange) {
+            showThemeAlertDialog(false);
 
-            //Jumps to No Connection Activity.
-            MainActivity.this.startIntent(new Intent(MainActivity.this, NoConnectionActivity.class));
+        } else if (id == R.id.TikTokBtn) {
+            // Checks if wifi or data is present
+            final boolean isThereConnection = ConnectivityService.isConnected(this);
 
-        }
-        else {
+            if (!isThereConnection) {
+                // Jumps to No Connection Activity.
+                startActivity(new Intent(this, NoConnectionActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                finish();
+                return;
+            }
 
-            //Checks for tiktok links, are they blank are they valid and displays messages if they are not
-            //DO NOT DELETE THE LOGIC HERE The app will crash all the time if you do that
-            if (OPENED_FROM_OUTSIDE != null && (OPENED_FROM_OUTSIDE.contains("vm.tiktok.com/"))) {
-                //  mFabProgressCircle.show();
+            // Checks for tiktok links, are they blank are they valid and displays messages if they are not
+            // DO NOT DELETE THE LOGIC HERE The app will crash all the time if you do that
+            if (OPENED_FROM_OUTSIDE != null && OPENED_FROM_OUTSIDE.contains("vm.tiktok.com/")) {
+                Toasty.custom(this, getString(R.string.please_wait), ContextCompat.getDrawable(this, R.drawable.wait),
+                        Toasty.LENGTH_SHORT, true).show();
+                return;
 
-                Toasty.custom(MainActivity.this, getString(R.string.please_wait), ContextCompat.getDrawable(this, R.drawable.wait), Toasty.LENGTH_SHORT, true).show();
-            } else {
-                ClipboardManager mClipboardService = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if (mClipboardService != null) {
-                    if (mClipboardService.hasPrimaryClip() &&
-                            mClipboardService.getPrimaryClipDescription().hasMimeType(MIMETYPE_TEXT_PLAIN)) {
+            } else if (clipboardManager != null) {
+                final ClipDescription clipDescription = clipboardManager.getPrimaryClipDescription();
 
-                        ClipData link = mClipboardService.getPrimaryClip();
+                if (clipboardManager.hasPrimaryClip() && clipDescription != null && clipDescription.hasMimeType(MIMETYPE_TEXT_PLAIN)) {
+                    final ClipData link = clipboardManager.getPrimaryClip();
 
+                    if (link != null) {
+                        final ClipData.Item item = link.getItemAt(0);
 
-                        ClipData.Item item = link.getItemAt(0);
-                        String mClipboardUrl = item.getText().toString();
-                        if (mClipboardUrl.contains("tiktok.com/")) {
-                            Log.e("tiktok", mClipboardUrl);
-                            MainActivity MainActivity = MainActivity.this;
-                            MainActivity.trueLink = MainActivity.getURLS(mClipboardUrl);
-                            MainActivity MainActivity2 = MainActivity.this;
-                            MainActivity2.saveVideo(MainActivity2.trueLink.get(0));
+                        final String clipboardUrl = item.getText().toString();
 
+                        if (clipboardUrl.contains("tiktok.com/")) {
+                            Log.e("tiktok", clipboardUrl);
+                            trueLink = getURLS(clipboardUrl);
+                            saveVideo(trueLink.get(0));
                         }
-                        if (mClipboardUrl.isEmpty()) {
-                            showAlert(R.string.no_copy_title, R.string.no_copy, R.color.Warning);
-                        } else if (mClipboardUrl.contains("tiktok.com/")) {
+
+                        if (clipboardUrl.isEmpty()) {
+                            showAlert(R.string.no_copy_title, R.string.no_copy, R.color.colorWarning);
+                        } else if (clipboardUrl.contains("tiktok.com/")) {
                             Toasty.custom(MainActivity.this, getString(R.string.please_wait), ContextCompat.getDrawable(this, R.drawable.wait), Toasty.LENGTH_SHORT, true).show();
                         } else {
-                            showAlert(R.string.correct_url_title, R.string.correct_url, R.color.Warning);
+                            showAlert(R.string.correct_url_title, R.string.correct_url, R.color.colorWarning);
                         }
-
-
-                    } else {
-
-                        showAlert(R.string.no_copy_title, R.string.no_copy, R.color.ERROR);
+                        return;
                     }
 
                 } else {
-                    showAlert(R.string.clipboard_error_title, R.string.clipboard_error, R.color.ERROR);
+                    showAlert(R.string.no_copy_title, R.string.no_copy, R.color.colorError);
+                    return;
                 }
             }
+
+            showAlert(R.string.clipboard_error_title, R.string.clipboard_error, R.color.colorError);
         }
-
-    }
-    /**
-     * This is empty LongClickListener
-     */
-    @Override
-    public boolean onLongClick(View view) {
-        return false;
     }
 
-    public final ArrayList < String > getURLS(String str) {
-        ArrayList < String > arrayList = new ArrayList < > ();
-        Matcher matcher = Pattern.compile("\\(?\\b(https?://|www[.]|ftp://)[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]").matcher(str);
+    @NonNull
+    public final ArrayList<String> getURLS(final String str) {
+        final ArrayList<String> arrayList = new ArrayList<>();
+        final Matcher matcher = Pattern.compile("\\(?\\b(https?://|www[.]|ftp://)[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]").matcher(str);
         while (matcher.find()) {
             String group = matcher.group();
-            if (group.startsWith("(") && group.endsWith(")")) {
+            if (group.startsWith("(") && group.endsWith(")"))
                 group = group.substring(1, group.length() - 1);
-            }
             arrayList.add(group);
         }
         return arrayList;
     }
+
     /**
      * This is where the magic happens, first we spoof our device using Jsoup than we process the url and lastly we get the playurl
      */
     public void saveVideo(final String str) {
         new Thread(() -> {
             try {
-                for (Element element: Jsoup.connect(str).userAgent("Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30").get().select("script")) {
-                    String data = element.data();
+                String playURL = "";
+
+                final Document document = Jsoup.connect(str)
+                        .userAgent("Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30")
+                        .get();
+
+                for (Element element : document.select("script")) {
+                    final String data = element.data();
                     if (data.contains("videoData")) {
-                        String substring = data.substring(data.lastIndexOf("urls"));
-                        String substring2 = substring.substring(substring.indexOf("[") + 1);
-                        String substring3 = substring2.substring(0, substring2.indexOf("]"));
-                        MainActivity.this.playURL = substring3.substring(1, substring3.length() - 1);
+                        final String substring = data.substring(data.lastIndexOf("urls"));
+                        final String substring2 = substring.substring(substring.indexOf("[") + 1);
+                        final String substring3 = substring2.substring(0, substring2.indexOf("]"));
+                        playURL = substring3.substring(1, substring3.length() - 1);
                     }
                 }
-                MainActivity.this.downloader(MainActivity.this.playURL);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                downloader(playURL);
+            } catch (final Exception e) {
+                Log.e("tiktok", "", e);
             }
         }).start();
     }
+
     /**
      * This snippet tells us when the download has started and where we download it as you can se we are saving all
      * file to /TikFetch folder with tiktok_time.mp4 format.
      */
+    public void downloader(final String str) {
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(getApplicationContext(), R.string.download_started, Toast.LENGTH_SHORT).show());
 
-    public void downloader(String str) {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            Context applicationContext = MainActivity.this.getApplicationContext();
-            Toast.makeText(applicationContext, "" + MainActivity.this.getString(R.string.download_started), Toast.LENGTH_LONG).show();
-        });
-        String string = getString(R.string.downloading);
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(withoutWatermark(str)));
-        request.setAllowedNetworkTypes(3);
+        final DownloadManager.Request request = new DownloadManager.Request(Uri.parse(withoutWatermark(str)));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
         request.setAllowedOverRoaming(true);
         request.setTitle(getString(R.string.app_name));
-        request.setVisibleInDownloadsUi(true);
-        request.setDescription(string);
+        request.setDescription(getString(R.string.downloading));
         request.setVisibleInDownloadsUi(true);
         request.allowScanningByMediaScanner();
-        request.setNotificationVisibility(1);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalFilesDir(this, "/TikFetch", ("tiktok__" + System.currentTimeMillis()) + "." + "mp4");
 
-        ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(request);
+        downloadManager.enqueue(request);
     }
+
     /**
      * We call the TikTok Server to get a watermark free sample of the video
      * DO NOT TOUCH THIS SNIPPET OF CODE IS VERY CRITITCAL AND MAY BREAK THE NO WATERMARK DEAL
      */
-    public String withoutWatermark(String url) {
+    public String withoutWatermark(final String url) {
         try {
-            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-            httpURLConnection.setRequestMethod("GET");
+            final HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
             httpURLConnection.connect();
-            httpURLConnection.getResponseCode();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-            StringBuffer stringBuffer = new StringBuffer();
-            while (true) {
-                String readLine = bufferedReader.readLine();
-                if (readLine != null) {
+            if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                final StringBuilder stringBuffer = new StringBuilder();
+
+                String readLine;
+                while ((readLine = bufferedReader.readLine()) != null) {
                     stringBuffer.append(readLine);
+
                     if (stringBuffer.toString().contains("vid:")) {
                         try {
                             if (stringBuffer.substring(stringBuffer.indexOf("vid:")).substring(0, 4).equals("vid:")) {
-                                String substring = stringBuffer.substring(stringBuffer.indexOf("vid:"));
-                                String trim = substring.substring(4, substring.indexOf("%")).replaceAll("[^A-Za-z0-9]", "").trim();
+                                final String substring = stringBuffer.substring(stringBuffer.indexOf("vid:"));
+                                final String trim = substring.substring(4, substring.indexOf("%"))
+                                        .replaceAll("[^A-Za-z0-9]", "").trim();
                                 return "http://api2.musical.ly/aweme/v1/playwm/?video_id=" + trim;
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (final Exception e) {
+                            Log.e("tiktok", "", e);
                         }
                     }
                 }
             }
-        } catch (Exception e2) {
-            e2.printStackTrace();
-            return "";
+
+        } catch (final Exception e) {
+            Log.e("tiktok", "", e);
         }
+
+        return "";
     }
 
     /**
      * This fucntion displays an alert using Alerter library.
      */
-    public void showAlert(int title, int message, int color) {
+    public void showAlert(final int title, final int message, final int color) {
         Alerter.create(this)
                 .setTitle(getString(title))
                 .setText(getString(message))
@@ -301,75 +300,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Function to check if user is using the app for the first time.
      */
     public void isFirstTime() {
-        Runnable r = () -> {
-            //  Declare a new thread to do a preference check
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                //  Create a new boolean and preference and set it to true
+                final boolean isFirstStart = sharedPreferences.getBoolean("isFirstStartedDialogTheme", true);
 
-            //  Initialize SharedPreferences
-            SharedPreferences getPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
+                //  If the activity has never started before...
+                if (isFirstStart) {
+                    showThemeAlertDialog(true);
+                    //  Edit preference to make it false because we don't want this to run again
+                    sharedPreferences.edit().putBoolean("isFirstStartedDialogTheme", false).apply();
+                }
 
-            //  Create a new boolean and preference and set it to true
-            boolean isFirstStart = getPrefs.getBoolean("isFirstStartedDialogTheme", true);
-
-            //  If the activity has never started before...
-            if (isFirstStart) {
-                showalertthemedialog();
-                SharedPreferences getPreftheme = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
-                //  Make a new preferences editor
-                SharedPreferences.Editor e = getPreftheme.edit();
-                //  Edit preference to make it false because we don't want this to run again
-                e.putBoolean("isFirstStartedDialogTheme", false);
-                e.apply();
-
+                // Remove all callbacks
+                handler.removeCallbacks(this);
             }
-        };
-        Handler h = new Handler();
-        h.postDelayed(r, 0);
+        });
     }
 
     /**
      * This is our Custom ALertDialog Builder for showing the user a dialogbox
      * to choose their Theme
      */
-    public void showalertthemedialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.DarkDialog);
+    public void showThemeAlertDialog(final boolean isFirst) {
+        final View view = layoutInflater.inflate(R.layout.alertdialog_custom_darkmode, null);
+        final CardView btnDarkMode = view.findViewById(R.id.btn_dark_theme);
+        final CardView btnLightMode = view.findViewById(R.id.btn_light_theme);
 
-        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.alertdialog_custom_darkmode, null);
-        Button darkmodebtn = view.findViewById(R.id.btn_dark_theme);
-        Button lightmodebtn = view.findViewById(R.id.btn_light_theme);
-        builder.setView(view);
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        darkmodebtn.setOnClickListener(view1 -> {
-            SharedPreferences getPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
-            //  Make a new preferences editor
-            SharedPreferences.Editor e = getPrefs.edit();
-            //  Edit preference to make it false because we don't want this to run again
-            e.putBoolean("User_theme_dark", true);
+        final View.OnClickListener onClickListener = v -> {
+            final SharedPreferences.Editor edit = sharedPreferences.edit();
+            if (v == btnDarkMode) {
+                edit.putBoolean("User_theme_dark", true);
+            } else if (v == btnLightMode) {
+                edit.putBoolean("User_theme_dark", false);
+            }
+            edit.apply();
 
-            e.apply();
+            if (dialog != null && dialog.isShowing()) dialog.dismiss();
+            recreate();
+        };
 
-            //  Create a new boolean and preference and set it to true
+        btnDarkMode.setOnClickListener(onClickListener);
+        btnLightMode.setOnClickListener(onClickListener);
 
-            dialog.dismiss();
-            MainActivity.this.recreate();
-        });
-
-        lightmodebtn.setOnClickListener(view12 -> {
-            SharedPreferences getPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
-            //  Make a new preferences editor
-            SharedPreferences.Editor e = getPrefs.edit();
-            //  Edit preference to make it false because we don't want this to run again
-            e.putBoolean("User_theme_dark", false);
-            e.apply();
-            dialog.dismiss();
-            MainActivity.this.recreate();
-        });
-
+        dialog = new AlertDialog.Builder(this, R.style.DarkDialog).setView(view)
+                .setCancelable(!isFirst).show();
     }
 
     /**
@@ -377,33 +354,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * If you disable or ignore this snippet of code the app wont work,it will crash or will not Download
      */
     private void askPermission() {
+        Dexter.withContext(this).withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE).withListener(new BasePermissionListener() {
+            @Override
+            public void onPermissionDenied(final PermissionDeniedResponse permissionDeniedResponse) {
+                if (permissionDeniedResponse.isPermanentlyDenied()) {
+                    Toasty.info(MainActivity.this, "You have denied stroage permissions permanently," +
+                                    " if the app force close try granting permission from Settings > Apps.",
+                            Toasty.LENGTH_LONG, true).show();
+                }
+            }
 
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.INTERNET,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.ACCESS_NETWORK_STATE
-                )
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG, true).show();
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List < PermissionRequest > permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                }).check();
-
+            @Override
+            public void onPermissionRationaleShouldBeShown(final PermissionRequest request, final PermissionToken token) {
+                token.continuePermissionRequest();
+            }
+        }).check();
     }
-    private void startIntent(Intent intent) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        finish();
-    }
-
 }

@@ -1,70 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/corner_radius_dialog"
-    android:padding="12dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:background="@drawable/corner_radius_dialog"
+    android:padding="12dp">
+
     <LinearLayout
-        android:orientation="vertical"
         android:id="@+id/ll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
         <TextView
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:gravity="center"
-            android:padding="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:padding="8dp"
             android:text="@string/choose_theme"
-            android:fontFamily="sans-serif" />
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/splashscreen_beta"
             android:layout_width="359dp"
             android:layout_height="294dp"
             android:layout_gravity="center"
-            android:src="@drawable/choose_theme" />
-        <TextView
-            android:textColor="@color/white"
-            android:padding="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/choose_theme_details"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_circle"
-            android:fontFamily="sans-serif-light" />
-        <TextView
-            android:textColor="@color/white"
-            android:padding="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/choose_theme_details_2"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_circle"
-            android:fontFamily="sans-serif-light" />
+            app:srcCompat="@drawable/choose_theme" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_circle"
+            android:drawableLeft="@drawable/ic_circle"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif-light"
+            android:padding="8dp"
+            android:text="@string/choose_theme_details"
+            android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_circle"
+            android:drawableLeft="@drawable/ic_circle"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif-light"
+            android:padding="8dp"
+            android:text="@string/choose_theme_details_2"
+            android:textColor="@color/white" />
+
+        <androidx.cardview.widget.CardView
             android:id="@+id/btn_dark_theme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_corners_dark"
-            android:padding="8dp"
-            android:text="@string/dark_mode_btn_name"
-            android:textColor="@color/white" />
-        <Button
+            android:foreground="?android:selectableItemBackground"
+            app:cardBackgroundColor="@color/colorDarkerGray"
+            app:cardCornerRadius="7dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:padding="8dp"
+                android:text="@string/dark_mode_btn_name"
+                android:textColor="@color/white" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:id="@+id/btn_light_theme"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_corners_light"
-            android:padding="8dp"
-            android:text="@string/light_mode_btn_name"
-            android:textColor="@color/darker_gray" />
+            android:foreground="?android:selectableItemBackground"
+            app:cardBackgroundColor="@color/colorGray"
+            app:cardCornerRadius="7dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:padding="8dp"
+                android:text="@string/light_mode_btn_name"
+                android:textColor="@color/colorDarkerGray" />
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 </ScrollView>
