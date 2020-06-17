@@ -1,4 +1,5 @@
 <p align="center">
+  ##STATUS:DEPRICATED
 <img src="https://i.imgur.com/u1CGx3t.png" alt="look">
 <br/>
 <a href="https://github.com/snajdovski/TikTokFetch-No-Watermark/releases/download/1.1/app-noAds-release-TikFetch.apk" rel="nofollow"><img alt="tiktokfetcgh" src="https://camo.envatousercontent.com/f2ae00980877ebfa89e64fb12a9e226989488345/68747470733a2f2f692e696d6775722e636f6d2f576968435043652e706e67"></a>
