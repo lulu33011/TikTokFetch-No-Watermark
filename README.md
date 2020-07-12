@@ -1,4 +1,3 @@
- ## STATUS:DEPRICATED
 <p align="center">
 <img src="https://i.imgur.com/u1CGx3t.png" alt="look">
 <br/>
