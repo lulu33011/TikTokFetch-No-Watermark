@@ -31,7 +31,6 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.BasePermissionListener;
-import com.ozurak.tiktokfetch.AdsUtils;
 import com.ozurak.tiktokfetch.R;
 import com.ozurak.tiktokfetch.Services.ConnectivityService;
 import com.tapadoo.alerter.Alerter;
@@ -56,6 +55,7 @@ import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
  * Stefan Najdovski
  * 5/21/2020
  */
+@SuppressWarnings("ALL")
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static String OPENED_FROM_OUTSIDE = null;
     ArrayList<String> trueLink;
@@ -103,8 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnTikTok.setOnClickListener(this);
         btnModeChange.setOnClickListener(this);
 
-        //Admob
-        AdsUtils.loadAds(this);
+
     }
 
     @Override

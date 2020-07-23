@@ -79,6 +79,5 @@
             android:layout_centerInParent="true"
             app:srcCompat="@drawable/ic_open_tiktok_dark" />
 
-        <include layout="@layout/include_ads" />
     </RelativeLayout>
 </LinearLayout>

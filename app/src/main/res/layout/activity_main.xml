@@ -85,6 +85,5 @@
             android:layout_centerInParent="true"
             android:src="@drawable/ic_open_tiktok_light" />
 
-        <include layout="@layout/include_ads" />
     </RelativeLayout>
 </LinearLayout>

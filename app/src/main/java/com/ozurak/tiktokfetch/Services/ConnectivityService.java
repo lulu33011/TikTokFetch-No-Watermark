@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
  * Stefan Najdovski
  * 5/21/2020
  */
+@SuppressWarnings("deprecation")
 public class ConnectivityService {
     @Nullable
     private static NetworkInfo getNetworkInfo(@NonNull final Context context) {

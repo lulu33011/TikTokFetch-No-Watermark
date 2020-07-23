@@ -19,6 +19,7 @@ import com.ozurak.tiktokfetch.R;
  * 5/22/2020
  * This Activity is used to show when no internet is found, the user has 2 options to open settings or to exit the app
  */
+@SuppressWarnings("deprecation")
 public class NoConnectionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
