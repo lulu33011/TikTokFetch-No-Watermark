@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 final String substring = stringBuffer.substring(stringBuffer.indexOf("vid:"));
                                 final String trim = substring.substring(4, substring.indexOf("%"))
                                         .replaceAll("[^A-Za-z0-9]", "").trim();
-                                return "https://api.tiktokv.com/aweme/v1/play/?video_id=" + trim;
+                                return "https://api.tiktokv.com/aweme/v1/playwm/?video_id=" + trim;
                             }
                         } catch (final Exception e) {
                             Log.e("tiktok", "", e);
